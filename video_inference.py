@@ -1,63 +1,74 @@
 import torch
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import argparse
+import time
 from model import Model
 
-depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load("models/0.pth"))
+# Argument parser for model path
+parser = argparse.ArgumentParser(description='Real-time video inference with depth model.')
+parser.add_argument('model_path', type=str, help='Path to the depth model.')
+args = parser.parse_args()
 
-depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load("models/1.pth"))
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load("models/2.pth"))
-
-depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load("models/3.pth"))
+# Load a single model from the provided path
+model = Model().to(DEVICE)
+model.load_state_dict(torch.load(args.model_path))
 
 cap = cv2.VideoCapture(0)
 
 if not cap.isOpened():
     raise RuntimeError("Failed to open camera")
 
-while True:
+fig, axes = plt.subplots(1, 3, figsize=(20, 10))
+axes = axes.flatten()
+
+start_time = time.time()
+frame_count = 0
+
+def update(frame_idx):
+    global start_time, frame_count
+    
     ret, frame = cap.read()
     if not ret:
-        break
-
+        return
+    
     resized_frame = cv2.resize(frame, (320, 240))
-
     resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
 
     image_tensor = torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 
     with torch.no_grad():
-        output_0 = depth_model_0(image_tensor)
-        output_1 = depth_model_1(image_tensor)
-        output_2 = depth_model_2(image_tensor)
-        output_3 = depth_model_3(image_tensor)
+        output = model(image_tensor)
 
-    output_0_np = output_0.cpu().squeeze().numpy()
-    output_1_np = output_1.cpu().squeeze().numpy()
-    output_2_np = output_2.cpu().squeeze().numpy()
-    output_3_np = output_3.cpu().squeeze().numpy()
+    output_np = output.cpu().squeeze().numpy()
 
-    output_0_resized = cv2.resize(output_0_np, (320, 240))
-    output_1_resized = cv2.resize(output_1_np, (320, 240))
-    output_2_resized = cv2.resize(output_2_np, (320, 240))
-    output_3_resized = cv2.resize(output_3_np, (320, 240))
+    # Calculate FPS
+    frame_count += 1
+    elapsed_time = time.time() - start_time
+    fps = frame_count / elapsed_time
 
-    output_0_bgr = cv2.cvtColor(output_0_resized.astype(np.uint8), cv2.COLOR_GRAY2BGR)
-    output_1_bgr = cv2.cvtColor(output_1_resized.astype(np.uint8), cv2.COLOR_GRAY2BGR)
-    output_2_bgr = cv2.cvtColor(output_2_resized.astype(np.uint8), cv2.COLOR_GRAY2BGR)
-    output_3_bgr = cv2.cvtColor(output_3_resized.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+    axes[0].imshow(resized_frame_rgb)
+    axes[0].set_title("Original Frame")
+    axes[0].axis('off')
 
-    combined_output = np.hstack((resized_frame, output_0_bgr, output_1_bgr, output_2_bgr, output_3_bgr))
+    axes[1].imshow(output_np, cmap='viridis')
+    axes[1].set_title("Model Output")
+    axes[1].axis('off')
 
-    cv2.imshow('Video Inference', combined_output)
+    # Plot FPS
+    axes[2].clear()
+    axes[2].axis('off')
+    axes[2].text(0.5, 0.5, f'FPS: {fps:.2f}', fontsize=12, ha='center', va='center')
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    return axes
+
+ani = animation.FuncAnimation(fig, update, interval=100, blit=False)
+
+plt.show()
 
 cap.release()
 cv2.destroyAllWindows()
