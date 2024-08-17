@@ -14,17 +14,19 @@ args = parser.parse_args()
 # Ensure output directory exists
 os.makedirs(args.output_folder, exist_ok=True)
 
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 # Load models
-depth_model_0 = Model().cuda()
+depth_model_0 = Model().to(DEVICE)
 depth_model_0.load_state_dict(torch.load("models/0.pth"))
 
-depth_model_1 = Model().cuda()
+depth_model_1 = Model().to(DEVICE)
 depth_model_1.load_state_dict(torch.load("models/1.pth"))
 
-depth_model_2 = Model().cuda()
+depth_model_2 = Model().to(DEVICE)
 depth_model_2.load_state_dict(torch.load("models/2.pth"))
 
-depth_model_3 = Model().cuda()
+depth_model_3 = Model().to(DEVICE)
 depth_model_3.load_state_dict(torch.load("models/3.pth"))
 
 # Get input image
@@ -44,7 +46,7 @@ else:
 # Resize and preprocess image
 resized_frame = cv2.resize(frame, (320, 240))
 resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
-image_tensor = torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).cuda()
+image_tensor = torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 
 # Inference
 with torch.no_grad():
