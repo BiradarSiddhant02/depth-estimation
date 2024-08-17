@@ -1,3 +1,12 @@
+# This file is part of depth-estimation.
+# 
+# Portions of this code are derived from the [Original Repository Name] project,
+# which is licensed under the MIT License.
+# 
+# Copyright (c) 2024 Siddhant Biradar.
+# 
+# See the LICENSE.md file in the root of the repository for more details.
+
 import torch
 import cv2
 import matplotlib.pyplot as plt
