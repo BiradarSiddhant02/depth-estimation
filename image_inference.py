@@ -37,16 +37,16 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load models
 depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load("models/0.pth"))
+depth_model_0.load_state_dict(torch.load("models/0.pth", weights_only=True))
 
 depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load("models/1.pth"))
+depth_model_1.load_state_dict(torch.load("models/1.pth", weights_only=True))
 
 depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load("models/2.pth"))
+depth_model_2.load_state_dict(torch.load("models/2.pth", weights_only=True))
 
 depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load("models/3.pth"))
+depth_model_3.load_state_dict(torch.load("models/3.pth", weights_only=True))
 
 # Get input image
 if args.input.lower() == "camera":
@@ -76,36 +76,38 @@ with torch.no_grad():
     output_2 = depth_model_2(image_tensor)
     output_3 = depth_model_3(image_tensor)
 
-# Convert outputs to numpy
 output_0_np = output_0.cpu().squeeze().numpy()
 output_1_np = output_1.cpu().squeeze().numpy()
 output_2_np = output_2.cpu().squeeze().numpy()
 output_3_np = output_3.cpu().squeeze().numpy()
 
-# Plot results
-fig, axs = plt.subplots(1, 5, figsize=(25, 5))
+combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.
 
-# Original Image
-axs[0].imshow(resized_frame_rgb)
-axs[0].set_title("Original Image")
-axs[0].axis("off")
+fig, axs = plt.subplots(2, 3, figsize=(25, 10))
 
-# Model Outputs
-axs[1].imshow(output_0_np, cmap="viridis")
-axs[1].set_title("Output 0")
-axs[1].axis("off")
+axs[0, 0].imshow(resized_frame_rgb)
+axs[0, 0].set_title("Original Image")
+axs[0, 0].axis("off")
 
-axs[2].imshow(output_1_np, cmap="viridis")
-axs[2].set_title("Output 1")
-axs[2].axis("off")
+axs[0, 1].imshow(output_0_np, cmap="viridis")
+axs[0, 1].set_title("Output 0")
+axs[0, 1].axis("off")
 
-axs[3].imshow(output_2_np, cmap="viridis")
-axs[3].set_title("Output 2")
-axs[3].axis("off")
+axs[0, 2].imshow(output_1_np, cmap="viridis")
+axs[0, 2].set_title("Output 1")
+axs[0, 2].axis("off")
 
-axs[4].imshow(output_3_np, cmap="viridis")
-axs[4].set_title("Output 3")
-axs[4].axis("off")
+axs[1, 0].imshow(output_2_np, cmap="viridis")
+axs[1, 0].set_title("Output 2")
+axs[1, 0].axis("off")
+
+axs[1, 1].imshow(output_3_np, cmap="viridis")
+axs[1, 1].set_title("Output 3")
+axs[1, 1].axis("off")
+
+axs[1, 2].imshow(combined_output, cmap="viridis")
+axs[1, 2].set_title("Combined Output")
+axs[1, 2].axis("off")
 
 # Save the figure
 plt.savefig(os.path.join(args.output_folder, "output_comparison.png"))
