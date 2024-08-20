@@ -5,6 +5,7 @@ from model import Model
 import argparse
 import os
 import torch.nn.functional as F
+from time import time
 
 parser = argparse.ArgumentParser(description="Depth Model Inference")
 parser.add_argument("--input", type=str, required=True, help='Input source: "camera" or path to an image file')
@@ -14,6 +15,7 @@ args = parser.parse_args()
 os.makedirs(args.output_folder, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+KERNEL_SIZE = 9
 
 depth_model_0 = Model().to(DEVICE)
 depth_model_0.load_state_dict(torch.load("models/0.pth", weights_only=True))
@@ -45,10 +47,12 @@ resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
 image_tensor = torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 
 with torch.no_grad():
+    start = time()
     output_0 = depth_model_0(image_tensor)
     output_1 = depth_model_1(image_tensor)
     output_2 = depth_model_2(image_tensor)
     output_3 = depth_model_3(image_tensor)
+    end = time()
 
 output_0_np = output_0.cpu().squeeze().numpy()
 output_1_np = output_1.cpu().squeeze().numpy()
@@ -58,7 +62,7 @@ output_3_np = output_3.cpu().squeeze().numpy()
 combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.
 
 combined_output_tensor = torch.from_numpy(combined_output).unsqueeze(0).unsqueeze(0)
-max_pooled_output = F.max_pool2d(combined_output_tensor, kernel_size=7, stride=1, padding=2)
+max_pooled_output = F.max_pool2d(combined_output_tensor, kernel_size=KERNEL_SIZE, stride=1, padding=2)
 max_pooled_output_np = max_pooled_output.squeeze().numpy()
 
 fig, axs = plt.subplots(2, 3, figsize=(18, 12))
@@ -95,4 +99,5 @@ outputs_np = [output_0_np, output_1_np, output_2_np, output_3_np, max_pooled_out
 for filename, output_np in zip(output_filenames, outputs_np):
     plt.imsave(os.path.join(args.output_folder, filename), output_np, cmap="viridis")
 
+fig.suptitle(str((end - start) / 4))
 plt.show()
