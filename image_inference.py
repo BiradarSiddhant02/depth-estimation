@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from model import Model
 import argparse
 import os
+from time import time
 
 # Argument parser
 parser = argparse.ArgumentParser(description="Depth Model Inference")
@@ -71,10 +72,12 @@ image_tensor = (
 
 # Inference
 with torch.no_grad():
+    start = time()
     output_0 = depth_model_0(image_tensor)
     output_1 = depth_model_1(image_tensor)
     output_2 = depth_model_2(image_tensor)
     output_3 = depth_model_3(image_tensor)
+    end = time()
 
 output_0_np = output_0.cpu().squeeze().numpy()
 output_1_np = output_1.cpu().squeeze().numpy()
@@ -120,3 +123,4 @@ for filename, output_np in zip(output_filenames, outputs_np):
     plt.imsave(os.path.join(args.output_folder, filename), output_np, cmap="viridis")
 
 plt.show()
+print(start - end)
