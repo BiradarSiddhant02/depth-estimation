@@ -48,3 +48,22 @@ python image_inference --input <input mode> --output_folder <folder to store out
 ```
 python video_inference <path/to/model>
 ```
+
+### **Raspberry Pi 3B+ setup**
+Install [miniforge3](https://github.com/conda-forge/miniforge)
+
+```
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
+```
+
+Create an environment
+```
+conda create -n pytorch python=3.10 pip
+```
+This command will install python version 3.10 and also install pip
+
+Download [pytorch](https://pytorch.org/)
+```
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
