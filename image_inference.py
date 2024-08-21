@@ -24,7 +24,7 @@ parser.add_argument(
     help='Input source: "camera" or path to an image file',
 )
 parser.add_argument(
-    "--output_folder",
+    "--output",
     type=str,
     required=True,
     help="Path to the folder where outputs will be saved",
@@ -123,4 +123,4 @@ for filename, output_np in zip(output_filenames, outputs_np):
     plt.imsave(os.path.join(args.output_folder, filename), output_np, cmap="viridis")
 
 plt.show()
-print(start - end)
+print(end - start)
