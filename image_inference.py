@@ -36,7 +36,7 @@ args = parser.parse_args()
 os.makedirs(args.output, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-POOL_SIZE = 9
+POOL_SIZE = 7
 STRIDE = 1
 
 # Load models

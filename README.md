@@ -35,6 +35,7 @@ install dependencies. Ubuntu 22.04 with up-to-date Nvidia drivers is recommended
 ```
 pip install -r requirments.txt
 ```
+Install pytorch seperately according to your system from [pytorch.org](pytorch.org)
 
 ### **To run inference on a single image:**
 ```
