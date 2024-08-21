@@ -14,6 +14,7 @@ from model import Model
 import argparse
 import os
 from time import time
+import numpy as np
 
 # Argument parser
 parser = argparse.ArgumentParser(description="Depth Model Inference")
@@ -35,6 +36,8 @@ args = parser.parse_args()
 os.makedirs(args.output, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+POOL_SIZE = 9
+STRIDE = 1
 
 # Load models
 depth_model_0 = Model().to(DEVICE)
@@ -86,6 +89,17 @@ output_3_np = output_3.cpu().squeeze().numpy()
 
 combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.
 
+h, w = combined_output.shape
+new_h = (h - POOL_SIZE) // STRIDE + 1
+new_w = (w - POOL_SIZE) // STRIDE + 1
+
+pooled_image = np.zeros((new_h, new_w), dtype=combined_output.dtype)
+
+for i in range(0, h - POOL_SIZE + 1, STRIDE):
+    for j in range(0, w - POOL_SIZE + 1, STRIDE):
+        window = combined_output[i : i + POOL_SIZE, j : j + POOL_SIZE]
+        pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
+
 fig, axs = plt.subplots(2, 3, figsize=(25, 10))
 
 axs[0, 0].imshow(resized_frame_rgb)
@@ -108,7 +122,7 @@ axs[1, 1].imshow(output_3_np, cmap="viridis")
 axs[1, 1].set_title("Output 3")
 axs[1, 1].axis("off")
 
-axs[1, 2].imshow(combined_output, cmap="viridis")
+axs[1, 2].imshow(pooled_image, cmap="viridis")
 axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
 
