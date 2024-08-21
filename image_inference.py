@@ -32,7 +32,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Ensure output directory exists
-os.makedirs(args.output_folder, exist_ok=True)
+os.makedirs(args.output, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -113,14 +113,14 @@ axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
 
 # Save the figure
-plt.savefig(os.path.join(args.output_folder, "output_comparison.png"))
+plt.savefig(os.path.join(args.output, "output_comparison.png"))
 
 # Save individual outputs
 output_filenames = ["output_0.png", "output_1.png", "output_2.png", "output_3.png"]
 outputs_np = [output_0_np, output_1_np, output_2_np, output_3_np]
 
 for filename, output_np in zip(output_filenames, outputs_np):
-    plt.imsave(os.path.join(args.output_folder, filename), output_np, cmap="viridis")
+    plt.imsave(os.path.join(args.output, filename), output_np, cmap="viridis")
 
 plt.show()
 print(end - start)
