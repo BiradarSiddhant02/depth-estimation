@@ -1,5 +1,5 @@
 import torch
-from inferencing.model import Model
+from model import Model
 import onnx
 
 model = Model()
