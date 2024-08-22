@@ -19,8 +19,8 @@ frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
 # Normalize and preprocess the image
 frame = frame.astype(np.float32) / 255.0  # Convert to float and normalize to [0, 1]
-frame = np.transpose(frame, (2, 0, 1))    # Transpose from HWC to CHW
-frame = np.expand_dims(frame, axis=0)     # Add batch dimension
+frame = np.transpose(frame, (2, 0, 1))  # Transpose from HWC to CHW
+frame = np.expand_dims(frame, axis=0)  # Add batch dimension
 
 # Define input and output names
 input_name = session.get_inputs()[0].name
@@ -35,6 +35,6 @@ output = np.transpose(output, (1, 2, 0))  # Convert CHW to HWC if needed
 
 # Display the image
 plt.imshow(output)
-plt.title('Model Output')
-plt.axis('off')
+plt.title("Model Output")
+plt.axis("off")
 plt.show()

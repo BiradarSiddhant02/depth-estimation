@@ -87,7 +87,7 @@ output_1_np = output_1.cpu().squeeze().numpy()
 output_2_np = output_2.cpu().squeeze().numpy()
 output_3_np = output_3.cpu().squeeze().numpy()
 
-combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.
+combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.0
 
 h, w = combined_output.shape
 new_h = (h - POOL_SIZE) // STRIDE + 1
@@ -106,23 +106,23 @@ axs[0, 0].imshow(resized_frame_rgb)
 axs[0, 0].set_title("Original Image")
 axs[0, 0].axis("off")
 
-axs[0, 1].imshow(output_0_np, cmap="PuRd")
+axs[0, 1].imshow(output_0_np, cmap="viridis")
 axs[0, 1].set_title("Output 0")
 axs[0, 1].axis("off")
 
-axs[0, 2].imshow(output_1_np, cmap="PuRd")
+axs[0, 2].imshow(output_1_np, cmap="viridis")
 axs[0, 2].set_title("Output 1")
 axs[0, 2].axis("off")
 
-axs[1, 0].imshow(output_2_np, cmap="PuRd")
+axs[1, 0].imshow(output_2_np, cmap="viridis")
 axs[1, 0].set_title("Output 2")
 axs[1, 0].axis("off")
 
-axs[1, 1].imshow(output_3_np, cmap="PuRd")
+axs[1, 1].imshow(output_3_np, cmap="viridis")
 axs[1, 1].set_title("Output 3")
 axs[1, 1].axis("off")
 
-axs[1, 2].imshow(pooled_image, cmap="PuRd")
+axs[1, 2].imshow(pooled_image, cmap="viridis")
 axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
 
