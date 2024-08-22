@@ -22,7 +22,7 @@ parser.add_argument(
     help="Path to the folder where outputs will be saved",
 )
 parser.add_argument(
-    "--model".capitalize,
+    "--model",
     type=str,
     required=True,
     help="Path to model"
