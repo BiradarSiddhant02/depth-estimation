@@ -41,12 +41,7 @@ onnx.export(
     dummy_input,
     args.output,  # Save location is now flexible
     export_params=True,
-    opset_version=11,
-    do_constant_folding=False,
-    input_names=["inputs"],
-    output_names=["outputs"],
-    keep_initializers_as_inputs=True,
-    verbose=False,
+    opset_version=11
 )
 
 print(f"Model has been exported to ONNX at {args.output} with the raw weights and structure.")

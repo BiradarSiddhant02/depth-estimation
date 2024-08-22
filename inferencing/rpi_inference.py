@@ -27,6 +27,13 @@ parser.add_argument(
     required=True,
     help="Path to the folder where outputs will be saved",
 )
+parser.add_argument(
+    "--model".capitalize,
+    type=str,
+    required=True,
+    help="Path to model"
+)
+
 args = parser.parse_args()
 print(f"Input = {args.input}")
 print(f"Output = {args.output}")
