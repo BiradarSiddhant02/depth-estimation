@@ -6,12 +6,6 @@ import os
 from time import time
 import matplotlib.pyplot as plt
 
-# Load the ONNX model
-try:
-    session = ort.InferenceSession("models/0.onnx")
-    print("Session created")
-except Exception as e:
-    raise RuntimeError(f"Failed to create ONNX Runtime session: {e}")
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description="Depth Model Inference")
@@ -37,6 +31,14 @@ parser.add_argument(
 args = parser.parse_args()
 print(f"Input = {args.input}")
 print(f"Output = {args.output}")
+
+# Load the ONNX model
+try:
+    session = ort.InferenceSession(args.model)
+    print("Session created")
+except Exception as e:
+    raise RuntimeError(f"Failed to create ONNX Runtime session: {e}")
+
 
 # Create output directory if it does not exist
 if not os.path.exists(args.output):
