@@ -2,12 +2,19 @@ from torch import randn, load, onnx
 from model import Model
 import argparse
 
+# Argument parser to handle command-line arguments
 parser = argparse.ArgumentParser(description="Pytorch to ONNX converter")
 parser.add_argument(
     "--model",
     type=str,
     required=True,
     help="Path to Pytorch Model",
+)
+parser.add_argument(
+    "--output",
+    type=str,
+    required=True,
+    help="Path to save the ONNX model",
 )
 args = parser.parse_args()
 
@@ -28,18 +35,18 @@ model.eval()
 # Prepare dummy input matching the model's expected input dimensions
 dummy_input = randn(1, 3, 480, 640)
 
-# Export the model to ONNX format without any optimizations or changes
+# Export the model to ONNX format with the specified save location
 onnx.export(
     model,
     dummy_input,
-    "models/0.onnx",
-    export_params=True,  # Export the model's parameters
-    opset_version=11,  # Specify the ONNX version
-    do_constant_folding=False,  # Disable constant folding to ensure raw weights are preserved
-    input_names=["inputs"],  # Specify the input variable name
-    output_names=["outputs"],  # Specify the output variable name
-    keep_initializers_as_inputs=True,  # Keep initializers (weights) as inputs, maintaining raw structure
-    verbose=False,  # Reduce verbosity to avoid logging unnecessary details
+    args.output,  # Save location is now flexible
+    export_params=True,
+    opset_version=11,
+    do_constant_folding=False,
+    input_names=["inputs"],
+    output_names=["outputs"],
+    keep_initializers_as_inputs=True,
+    verbose=False,
 )
 
-print("Model has been exported to ONNX with the raw weights and structure.")
+print(f"Model has been exported to ONNX at {args.output} with the raw weights and structure.")
