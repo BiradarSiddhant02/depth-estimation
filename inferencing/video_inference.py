@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import argparse
 import time
-from inferencing.model import Model
+from model import Model
 
 # Argument parser for model path
 parser = argparse.ArgumentParser(

@@ -10,7 +10,7 @@
 import torch
 import cv2
 import matplotlib.pyplot as plt
-from inferencing.model import Model
+from model import Model
 import argparse
 import os
 from time import time
@@ -41,16 +41,16 @@ STRIDE = 1
 
 # Load models
 depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load("../models/0.pth", weights_only=True))
+depth_model_0.load_state_dict(torch.load("models/0.pth", weights_only=True))
 
 depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load("../models/1.pth", weights_only=True))
+depth_model_1.load_state_dict(torch.load("models/1.pth", weights_only=True))
 
 depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load("../models/2.pth", weights_only=True))
+depth_model_2.load_state_dict(torch.load("models/2.pth", weights_only=True))
 
 depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load("../models/3.pth", weights_only=True))
+depth_model_3.load_state_dict(torch.load("models/3.pth", weights_only=True))
 
 # Get input image
 if args.input.lower() == "camera":
@@ -106,23 +106,23 @@ axs[0, 0].imshow(resized_frame_rgb)
 axs[0, 0].set_title("Original Image")
 axs[0, 0].axis("off")
 
-axs[0, 1].imshow(output_0_np, cmap="viridis")
+axs[0, 1].imshow(output_0_np, cmap="PuRd")
 axs[0, 1].set_title("Output 0")
 axs[0, 1].axis("off")
 
-axs[0, 2].imshow(output_1_np, cmap="viridis")
+axs[0, 2].imshow(output_1_np, cmap="PuRd")
 axs[0, 2].set_title("Output 1")
 axs[0, 2].axis("off")
 
-axs[1, 0].imshow(output_2_np, cmap="viridis")
+axs[1, 0].imshow(output_2_np, cmap="PuRd")
 axs[1, 0].set_title("Output 2")
 axs[1, 0].axis("off")
 
-axs[1, 1].imshow(output_3_np, cmap="viridis")
+axs[1, 1].imshow(output_3_np, cmap="PuRd")
 axs[1, 1].set_title("Output 3")
 axs[1, 1].axis("off")
 
-axs[1, 2].imshow(pooled_image, cmap="viridis")
+axs[1, 2].imshow(pooled_image, cmap="PuRd")
 axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
 

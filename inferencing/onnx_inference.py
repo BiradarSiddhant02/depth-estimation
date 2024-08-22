@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 # Load the ONNX model
-session = ort.InferenceSession("../models/0.onnx")
+session = ort.InferenceSession("models/model.onnx")
 
 # Capture an image from the webcam
 cap = cv2.VideoCapture(0)
