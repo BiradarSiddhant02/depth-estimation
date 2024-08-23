@@ -1,4 +1,6 @@
 matplotlib==3.8.4
 opencv_python==4.10.0.84
 opencv_python_headless==4.10.0.84
-
+torch
+torchvision
+torchaudio
