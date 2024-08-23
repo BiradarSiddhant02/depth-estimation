@@ -30,6 +30,12 @@ parser.add_argument(
     required=True,
     help="Path to the folder where outputs will be saved",
 )
+parser.add_argument(
+    "--model",
+    type=str,
+    required=True,
+    help="Path to the folder where outputs will be saved",
+)
 args = parser.parse_args()
 
 # Ensure output directory exists
@@ -40,17 +46,8 @@ POOL_SIZE = 7
 STRIDE = 1
 
 # Load models
-depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load("models/gen-1/0.pth", weights_only=False, map_location='cpu'))
-
-depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load("models/gen-1/1.pth", weights_only=False, map_location='cpu'))
-
-depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load("models/gen-1/2.pth", weights_only=False, map_location='cpu'))
-
-depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load("models/gen-1/3.pth", weights_only=False, map_location='cpu'))
+depth_model = Model().to(DEVICE)
+depth_model.load_state_dict(torch.load(args.model, weights_only=False, map_location='cpu'))
 
 # Get input image
 if args.input.lower() == "camera":
@@ -76,28 +73,20 @@ image_tensor = (
 # Inference
 with torch.no_grad():
     start = time()
-    output_0 = depth_model_0(image_tensor)
-    output_1 = depth_model_1(image_tensor)
-    output_2 = depth_model_2(image_tensor)
-    output_3 = depth_model_3(image_tensor)
+    output_0 = depth_model(image_tensor)
     end = time()
 
 output_0_np = output_0.cpu().squeeze().numpy()
-output_1_np = output_1.cpu().squeeze().numpy()
-output_2_np = output_2.cpu().squeeze().numpy()
-output_3_np = output_3.cpu().squeeze().numpy()
 
-combined_output = (output_0_np + output_1_np + output_2_np + output_3_np) / 255.0
-
-h, w = combined_output.shape
+h, w = output_0_np.shape
 new_h = (h - POOL_SIZE) // STRIDE + 1
 new_w = (w - POOL_SIZE) // STRIDE + 1
 
-pooled_image = np.zeros((new_h, new_w), dtype=combined_output.dtype)
+pooled_image = np.zeros((new_h, new_w), dtype=output_0_np.dtype)
 
 for i in range(0, h - POOL_SIZE + 1, STRIDE):
     for j in range(0, w - POOL_SIZE + 1, STRIDE):
-        window = combined_output[i : i + POOL_SIZE, j : j + POOL_SIZE]
+        window = output_0_np[i : i + POOL_SIZE, j : j + POOL_SIZE]
         pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
 fig, axs = plt.subplots(2, 3, figsize=(25, 10))
@@ -110,31 +99,10 @@ axs[0, 1].imshow(output_0_np, cmap="viridis")
 axs[0, 1].set_title("Output 0")
 axs[0, 1].axis("off")
 
-axs[0, 2].imshow(output_1_np, cmap="viridis")
-axs[0, 2].set_title("Output 1")
-axs[0, 2].axis("off")
-
-axs[1, 0].imshow(output_2_np, cmap="viridis")
-axs[1, 0].set_title("Output 2")
-axs[1, 0].axis("off")
-
-axs[1, 1].imshow(output_3_np, cmap="viridis")
-axs[1, 1].set_title("Output 3")
+axs[1, 1].imshow(pooled_image, cmap="viridis")
+axs[1, 1].set_title("Pooled Output")
 axs[1, 1].axis("off")
-
-axs[1, 2].imshow(pooled_image, cmap="viridis")
-axs[1, 2].set_title("Combined Output")
-axs[1, 2].axis("off")
 
 # Save the figure
 plt.savefig(os.path.join(args.output, "output_comparison.png"))
-
-# Save individual outputs
-output_filenames = ["output_0.png", "output_1.png", "output_2.png", "output_3.png"]
-outputs_np = [output_0_np, output_1_np, output_2_np, output_3_np]
-
-for filename, output_np in zip(output_filenames, outputs_np):
-    plt.imsave(os.path.join(args.output, filename), output_np, cmap="viridis")
-
-plt.show()
-print(end - start)
+print(f"Inference Time: {end - start:.2f} seconds")
