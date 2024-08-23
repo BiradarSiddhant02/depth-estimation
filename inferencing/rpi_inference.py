@@ -92,21 +92,23 @@ for i in range(0, h - POOL_SIZE + 1, STRIDE):
         pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
 print("Creating and saving visualization...")
-fig, axs = plt.subplots(2, 3, figsize=(25, 10))
+# Visualization
+fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
-axs[0, 0].imshow(resized_frame_rgb)
-axs[0, 0].set_title("Original Image")
-axs[0, 0].axis("off")
+axs[0].imshow(resized_frame_rgb)
+axs[0].set_title("Original Image")
+axs[0].axis("off")
 
-axs[0, 1].imshow(output_0_np, cmap="viridis")
-axs[0, 1].set_title("Output 0")
-axs[0, 1].axis("off")
+axs[1].imshow(output_0_np, cmap="viridis")
+axs[1].set_title("Depth Map")
+axs[1].axis("off")
 
-axs[1, 1].imshow(pooled_image, cmap="viridis")
-axs[1, 1].set_title("Pooled Output")
-axs[1, 1].axis("off")
+axs[2].imshow(pooled_image, cmap="viridis")
+axs[2].set_title("Pooled Depth Map")
+axs[2].axis("off")
 
 # Save the figure
+plt.tight_layout()
 plt.savefig(os.path.join(args.output, "output_comparison.png"))
 plt.show()
 
