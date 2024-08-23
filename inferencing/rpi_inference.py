@@ -1,12 +1,3 @@
-# This file is part of depth-estimation.
-#
-# Portions of this code are derived from the [Original Repository Name] project,
-# which is licensed under the MIT License.
-#
-# Copyright (c) 2024 Siddhant Biradar.
-#
-# See the LICENSE.md file in the root of the repository for more details.
-
 import torch
 import cv2
 import matplotlib.pyplot as plt
@@ -34,7 +25,7 @@ parser.add_argument(
     "--model",
     type=str,
     required=True,
-    help="Path to the folder where outputs will be saved",
+    help="Path to the saved model",
 )
 args = parser.parse_args()
 
@@ -45,10 +36,14 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 POOL_SIZE = 7
 STRIDE = 1
 
-# Load models
+print("Loading model...")
+# Load model
 depth_model = Model().to(DEVICE)
 depth_model.load_state_dict(torch.load(args.model, weights_only=False, map_location='cpu'))
 
+print("Model loaded successfully.")
+
+print("Preparing input...")
 # Get input image
 if args.input.lower() == "camera":
     cap = cv2.VideoCapture(0)
@@ -56,13 +51,16 @@ if args.input.lower() == "camera":
     cap.release()
     if not ret:
         raise RuntimeError("Failed to capture image from camera.")
+    print("Captured image from camera.")
 elif os.path.isfile(args.input):
     frame = cv2.imread(args.input)
     if frame is None:
         raise RuntimeError(f"Failed to load image from {args.input}")
+    print(f"Loaded image from {args.input}.")
 else:
     raise ValueError('Invalid input. Use "camera" or provide a valid image path.')
 
+print("Resizing and preprocessing image...")
 # Resize and preprocess image
 resized_frame = cv2.resize(frame, (320, 240))
 resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
@@ -70,14 +68,18 @@ image_tensor = (
     torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 )
 
+print("Running inference...")
 # Inference
 with torch.no_grad():
     start = time()
     output_0 = depth_model(image_tensor)
     end = time()
 
+print(f"Inference completed in {end - start:.2f} seconds.")
+
 output_0_np = output_0.cpu().squeeze().numpy()
 
+print("Processing output...")
 h, w = output_0_np.shape
 new_h = (h - POOL_SIZE) // STRIDE + 1
 new_w = (w - POOL_SIZE) // STRIDE + 1
@@ -89,6 +91,7 @@ for i in range(0, h - POOL_SIZE + 1, STRIDE):
         window = output_0_np[i : i + POOL_SIZE, j : j + POOL_SIZE]
         pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
+print("Creating and saving visualization...")
 fig, axs = plt.subplots(2, 3, figsize=(25, 10))
 
 axs[0, 0].imshow(resized_frame_rgb)
@@ -105,4 +108,6 @@ axs[1, 1].axis("off")
 
 # Save the figure
 plt.savefig(os.path.join(args.output, "output_comparison.png"))
-print(f"Inference Time: {end - start:.2f} seconds")
+plt.show()
+
+print(f"Visualization saved to {os.path.join(args.output, 'output_comparison.png')}.")
