@@ -70,7 +70,7 @@ image_tensor = (
 
 print("Running inference...")
 # Inference
-with torch.cuda.amp.autocast(dtype=torch.float16):
+with torch.cpu.amp.autocast(dtype=torch.float16):
     with torch.no_grad():
         start = time()
         output_0 = depth_model(image_tensor)
