@@ -49,3 +49,16 @@ python image_inference --input <input mode> --output_folder <folder to store out
 ```
 python video_inference <path/to/model>
 ```
+
+### **RPi Setup**
+```
+pip install -r requirements_aarch64.txt
+```
+create a folder named inputs and upload an image.
+```
+python inference/rpi_inference.py    \
+    --input <path/to/input/image>    \
+    --output <path/to/output/folder> \
+    --model <path/to/model>
+```
+download the output image and view
