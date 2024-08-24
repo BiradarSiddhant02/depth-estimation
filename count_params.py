@@ -1,7 +1,9 @@
 from inferencing.model import Model
 
+
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters())
+
 
 # Example usage
 model = Model()  # Replace YourModel with your actual model class

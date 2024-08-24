@@ -39,7 +39,9 @@ STRIDE = 1
 print("Loading model...")
 # Load model
 depth_model = Model().to(DEVICE)
-depth_model.load_state_dict(torch.load(args.model, weights_only=False, map_location='cpu'))
+depth_model.load_state_dict(
+    torch.load(args.model, weights_only=False, map_location="cpu")
+)
 
 print("Model loaded successfully.")
 

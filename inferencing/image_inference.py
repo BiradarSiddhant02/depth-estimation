@@ -30,6 +30,12 @@ parser.add_argument(
     required=True,
     help="Path to the folder where outputs will be saved",
 )
+parser.add_argument(
+    "--model",
+    type=str,
+    required=True,
+    help="Path to the folder where the model is saved",
+)
 args = parser.parse_args()
 
 # Ensure output directory exists
@@ -41,16 +47,16 @@ STRIDE = 1
 
 # Load models
 depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load("models/gen-1/0.pth", weights_only=True))
+depth_model_0.load_state_dict(torch.load(f"{args.model}/0.pth", weights_only=True))
 
 depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load("models/gen-1/1.pth", weights_only=True))
+depth_model_1.load_state_dict(torch.load(f"{args.model}/1.pth", weights_only=True))
 
 depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load("models/gen-1/2.pth", weights_only=True))
+depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
 
 depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load("models/gen-1/3.pth", weights_only=True))
+depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
 
 # Get input image
 if args.input.lower() == "camera":
