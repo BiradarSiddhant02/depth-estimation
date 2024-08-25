@@ -10,43 +10,35 @@
 import torch
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import argparse
-import time
+from time import time
 from model import Model
+import matplotlib.cm as cm
 
-# Argument parser for model path
-parser = argparse.ArgumentParser(
-    description="Real-time video inference with depth model."
-)
-parser.add_argument("model_path", type=str, help="Path to the depth model.")
+parser = argparse.ArgumentParser(description="Real-time video inference with depth model.")
+parser.add_argument("--model", type=str, help="Path to the depth model.")
+parser.add_argument("--input", type=str, help="Source of input video. 'camera' for webcam, path for stored video")
 args = parser.parse_args()
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+POOL_SIZE = 7
+STRIDE = 1
 
-# Load a single model from the provided path
 model = Model().to(DEVICE)
-model.load_state_dict(torch.load(args.model_path, weights_only=True))
+model.load_state_dict(torch.load(args.model, map_location=DEVICE))
 
-cap = cv2.VideoCapture(0)
+if args.input == "camera":
+    cap = cv2.VideoCapture(0)
+else:
+    cap = cv2.VideoCapture(args.input)
 
 if not cap.isOpened():
-    raise RuntimeError("Failed to open camera")
+    raise RuntimeError("Failed to open video source")
 
-fig, axes = plt.subplots(1, 3, figsize=(20, 10))
-axes = axes.flatten()
-
-start_time = time.time()
-frame_count = 0
-
-
-def update(frame_idx):
-    global start_time, frame_count
-
+while True:
     ret, frame = cap.read()
     if not ret:
-        return
+        break
 
     resized_frame = cv2.resize(frame, (320, 240))
     resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
@@ -60,36 +52,34 @@ def update(frame_idx):
     )
 
     with torch.no_grad():
-        output = model(image_tensor)
+        start = time()
+        output_frame = model(image_tensor)
+        end = time()
+    
+    output_frame_np = output_frame.cpu().squeeze().numpy()
+    
+    h, w = output_frame_np.shape
+    new_h = (h - POOL_SIZE) // STRIDE + 1
+    new_w = (w - POOL_SIZE) // STRIDE + 1
 
-    output_np = output.cpu().squeeze().numpy()
+    pooled_image = np.zeros((new_h, new_w), dtype=output_frame_np.dtype)
 
-    # Calculate FPS
-    frame_count += 1
-    elapsed_time = time.time() - start_time
-    fps = frame_count / elapsed_time
+    for i in range(0, h - POOL_SIZE + 1, STRIDE):
+        for j in range(0, w - POOL_SIZE + 1, STRIDE):
+            window = output_frame_np[i : i + POOL_SIZE, j : j + POOL_SIZE]
+            pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
-    axes[0].imshow(resized_frame_rgb)
-    axes[0].set_title("Original Frame")
-    axes[0].axis("off")
+    pooled_image_normalized = (pooled_image - pooled_image.min()) / (pooled_image.max() - pooled_image.min())
+    color_mapped = cm.autumn(pooled_image_normalized)
+    color_mapped = (color_mapped[:, :, :3] * 255).astype(np.uint8)
 
-    axes[1].imshow(output_np, cmap="turbo")
-    axes[1].set_title("Model Output")
-    axes[1].axis("off")
+    color_output_resized = cv2.resize(color_mapped, (320, 240))
+    combined_frame = np.hstack((resized_frame, color_output_resized))
 
-    # Plot FPS
-    axes[2].clear()
-    axes[2].axis("off")
-    axes[2].text(0.5, 0.5, f"FPS: {fps:.2f}", fontsize=12, ha="center", va="center")
+    cv2.imshow('Input and Depth Estimation', combined_frame)
 
-    return axes
-
-
-ani = animation.FuncAnimation(
-    fig, update, interval=100, blit=False, cache_frame_data=False
-)
-
-plt.show()
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
 cap.release()
 cv2.destroyAllWindows()
