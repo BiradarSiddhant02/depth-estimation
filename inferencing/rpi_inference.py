@@ -72,11 +72,10 @@ image_tensor = (
 
 print("Running inference...")
 # Inference
-with torch.cpu.amp.autocast(dtype=torch.float16):
-    with torch.no_grad():
-        start = time()
-        output_0 = depth_model(image_tensor)
-        end = time()
+with torch.no_grad():
+    start = time()
+    output_0 = depth_model(image_tensor)
+    end = time()
 
 print(f"Inference completed in {end - start:.2f} seconds.")
 
