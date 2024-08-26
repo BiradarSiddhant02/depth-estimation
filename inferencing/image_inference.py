@@ -44,6 +44,7 @@ os.makedirs(args.output, exist_ok=True)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 POOL_SIZE = 7
 STRIDE = 1
+CMAP = 'viridis'
 
 # Load models
 depth_model_0 = Model().to(DEVICE)
@@ -112,23 +113,23 @@ axs[0, 0].imshow(resized_frame_rgb)
 axs[0, 0].set_title("Original Image")
 axs[0, 0].axis("off")
 
-axs[0, 1].imshow(output_0_np, cmap="viridis")
+axs[0, 1].imshow(output_0_np, cmap=CMAP)
 axs[0, 1].set_title("Output 0")
 axs[0, 1].axis("off")
 
-axs[0, 2].imshow(output_1_np, cmap="viridis")
+axs[0, 2].imshow(output_1_np, cmap=CMAP)
 axs[0, 2].set_title("Output 1")
 axs[0, 2].axis("off")
 
-axs[1, 0].imshow(output_2_np, cmap="viridis")
+axs[1, 0].imshow(output_2_np, cmap=CMAP)
 axs[1, 0].set_title("Output 2")
 axs[1, 0].axis("off")
 
-axs[1, 1].imshow(output_3_np, cmap="viridis")
+axs[1, 1].imshow(output_3_np, cmap=CMAP)
 axs[1, 1].set_title("Output 3")
 axs[1, 1].axis("off")
 
-axs[1, 2].imshow(pooled_image, cmap="viridis")
+axs[1, 2].imshow(pooled_image, cmap=CMAP)
 axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
 
