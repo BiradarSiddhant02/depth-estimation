@@ -113,7 +113,7 @@ axs[1, 0].set_title("Pooled Depth Map")
 axs[1, 0].axis("off")
 
 axs[1, 1].imshow(ground_truth, cmap="viridis")
-axs[1, 1].set_title("Depth Map")
+axs[1, 1].set_title("Ground Truth")
 axs[1, 1].axis("off")
 
 # Save the figure
