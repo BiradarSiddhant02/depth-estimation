@@ -70,6 +70,9 @@ image_tensor = (
     torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 )
 
+depth_map_path = args.input.replace("colors", "depth")
+ground_truth = cv2.resize(cv2.imread(depth_map_path, cv2.IMREAD_GRAYSCALE), (320, 240))
+
 print("Running inference...")
 # Inference
 with torch.no_grad():
@@ -95,19 +98,23 @@ for i in range(0, h - POOL_SIZE + 1, STRIDE):
 
 print("Creating and saving visualization...")
 # Visualization
-fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+fig, axs = plt.subplots(2, 2, figsize=(18, 6))
 
-axs[0].imshow(resized_frame_rgb)
-axs[0].set_title("Original Image")
-axs[0].axis("off")
+axs[0, 0].imshow(resized_frame_rgb)
+axs[0, 0].set_title("Original Image")
+axs[0, 0].axis("off")
 
-axs[1].imshow(output_0_np, cmap="viridis")
-axs[1].set_title("Depth Map")
-axs[1].axis("off")
+axs[0, 1].imshow(output_0_np, cmap="viridis")
+axs[0, 1].set_title("Depth Map")
+axs[0, 1].axis("off")
 
-axs[2].imshow(pooled_image, cmap="viridis")
-axs[2].set_title("Pooled Depth Map")
-axs[2].axis("off")
+axs[1, 0].imshow(pooled_image, cmap="viridis")
+axs[1, 0].set_title("Pooled Depth Map")
+axs[1, 0].axis("off")
+
+axs[1, 1].imshow(ground_truth, cmap="viridis")
+axs[1, 1].set_title("Depth Map")
+axs[1, 1].axis("off")
 
 # Save the figure
 plt.tight_layout()
