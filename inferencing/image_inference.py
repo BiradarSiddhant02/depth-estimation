@@ -9,8 +9,8 @@
 
 import torch
 import cv2
-import matplotlib.pyplot as plt
-from model import Model
+import matplotlib.pyplot as plt # type: ignore
+from model import TransferLearning, CustomUNET1, CustomUNET2
 import argparse
 import os
 from time import time
@@ -44,20 +44,52 @@ os.makedirs(args.output, exist_ok=True)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 POOL_SIZE = 7
 STRIDE = 1
-CMAP = 'viridis'
+CMAP = "viridis"
+
+tokens = args.model.split("/")
+MODEL_CLASS = tokens[-2]
+MODEL_GEN = tokens[-1]
+print(MODEL_CLASS)
 
 # Load models
-depth_model_0 = Model().to(DEVICE)
-depth_model_0.load_state_dict(torch.load(f"{args.model}/0.pth", weights_only=True))
+if MODEL_CLASS == "Transfer-Learning":
+    depth_model_0 = TransferLearning().to(DEVICE)
+    depth_model_0.load_state_dict(torch.load(f"{args.model}/0.pth", weights_only=True))
 
-depth_model_1 = Model().to(DEVICE)
-depth_model_1.load_state_dict(torch.load(f"{args.model}/1.pth", weights_only=True))
+    depth_model_1 = TransferLearning().to(DEVICE)
+    depth_model_1.load_state_dict(torch.load(f"{args.model}/1.pth", weights_only=True))
 
-depth_model_2 = Model().to(DEVICE)
-depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
+    depth_model_2 = TransferLearning().to(DEVICE)
+    depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
 
-depth_model_3 = Model().to(DEVICE)
-depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
+    depth_model_3 = TransferLearning().to(DEVICE)
+    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
+
+elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-1":
+    depth_model_0 = CustomUNET1().to(DEVICE)
+    depth_model_0.load_state_dict(torch.load(f"{args.model}/0.pth", weights_only=True))
+
+    depth_model_1 = CustomUNET1().to(DEVICE)
+    depth_model_1.load_state_dict(torch.load(f"{args.model}/1.pth", weights_only=True))
+
+    depth_model_2 = CustomUNET1().to(DEVICE)
+    depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
+
+    depth_model_3 = CustomUNET1().to(DEVICE)
+    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))  
+
+elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-2":
+    depth_model_0 = CustomUNET2().to(DEVICE)
+    depth_model_0.load_state_dict(torch.load(f"{args.model}/0.pth", weights_only=True))
+
+    depth_model_1 = CustomUNET2().to(DEVICE)
+    depth_model_1.load_state_dict(torch.load(f"{args.model}/1.pth", weights_only=True))
+
+    depth_model_2 = CustomUNET2().to(DEVICE)
+    depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
+
+    depth_model_3 = CustomUNET2().to(DEVICE)
+    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))    
 
 # Get input image
 if args.input.lower() == "camera":
@@ -79,6 +111,12 @@ resized_frame_rgb = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
 image_tensor = (
     torch.from_numpy(resized_frame_rgb).float().permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 )
+
+ground_truth = np.ones((240, 320), dtype=np.float32)
+
+if args.input != "camera":
+    depth_map_path = args.input.replace("colors", "depth")
+    ground_truth = cv2.resize(cv2.imread(depth_map_path, cv2.IMREAD_GRAYSCALE), (320, 240))
 
 # Inference
 with torch.no_grad():
@@ -107,31 +145,39 @@ for i in range(0, h - POOL_SIZE + 1, STRIDE):
         window = combined_output[i : i + POOL_SIZE, j : j + POOL_SIZE]
         pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
-fig, axs = plt.subplots(2, 3, figsize=(25, 10))
+fig, axs = plt.subplots(2, 4, figsize=(25, 10))
 
 axs[0, 0].imshow(resized_frame_rgb)
 axs[0, 0].set_title("Original Image")
 axs[0, 0].axis("off")
 
-axs[0, 1].imshow(output_0_np, cmap=CMAP)
-axs[0, 1].set_title("Output 0")
+axs[0, 1].imshow(ground_truth, cmap=CMAP)
+axs[0, 1].set_title("Original Depth")
 axs[0, 1].axis("off")
 
-axs[0, 2].imshow(output_1_np, cmap=CMAP)
-axs[0, 2].set_title("Output 1")
+axs[0, 2].imshow(1 - output_0_np, cmap=CMAP)
+axs[0, 2].set_title("Output 0")
 axs[0, 2].axis("off")
 
-axs[1, 0].imshow(output_2_np, cmap=CMAP)
+axs[0, 3].imshow(1 - output_1_np, cmap=CMAP)
+axs[0, 3].set_title("Output 1")
+axs[0, 3].axis("off")
+
+axs[1, 0].imshow(1 - output_2_np, cmap=CMAP)
 axs[1, 0].set_title("Output 2")
 axs[1, 0].axis("off")
 
-axs[1, 1].imshow(output_3_np, cmap=CMAP)
+axs[1, 1].imshow(1 - output_3_np, cmap=CMAP)
 axs[1, 1].set_title("Output 3")
 axs[1, 1].axis("off")
 
-axs[1, 2].imshow(pooled_image, cmap=CMAP)
+axs[1, 2].imshow(1 - combined_output, cmap=CMAP)
 axs[1, 2].set_title("Combined Output")
 axs[1, 2].axis("off")
+
+axs[1, 3].imshow(1 - pooled_image, cmap=CMAP)
+axs[1, 3].set_title("Pooled Output")
+axs[1, 3].axis("off")
 
 # Save the figure
 plt.savefig(os.path.join(args.output, "output_comparison.png"))
@@ -144,4 +190,4 @@ for filename, output_np in zip(output_filenames, outputs_np):
     plt.imsave(os.path.join(args.output, filename), output_np, cmap="viridis")
 
 plt.show()
-print(end - start)
+print((end - start) / 4)

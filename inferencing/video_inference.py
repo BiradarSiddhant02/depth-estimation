@@ -15,9 +15,15 @@ from time import time
 from model import Model
 import matplotlib.cm as cm
 
-parser = argparse.ArgumentParser(description="Real-time video inference with depth model.")
+parser = argparse.ArgumentParser(
+    description="Real-time video inference with depth model."
+)
 parser.add_argument("--model", type=str, help="Path to the depth model.")
-parser.add_argument("--input", type=str, help="Source of input video. 'camera' for webcam, path for stored video")
+parser.add_argument(
+    "--input",
+    type=str,
+    help="Source of input video. 'camera' for webcam, path for stored video",
+)
 args = parser.parse_args()
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -55,9 +61,9 @@ while True:
         start = time()
         output_frame = model(image_tensor)
         end = time()
-    
+
     output_frame_np = output_frame.cpu().squeeze().numpy()
-    
+
     h, w = output_frame_np.shape
     new_h = (h - POOL_SIZE) // STRIDE + 1
     new_w = (w - POOL_SIZE) // STRIDE + 1
@@ -69,16 +75,18 @@ while True:
             window = output_frame_np[i : i + POOL_SIZE, j : j + POOL_SIZE]
             pooled_image[i // STRIDE, j // STRIDE] = np.max(window)
 
-    pooled_image_normalized = (pooled_image - pooled_image.min()) / (pooled_image.max() - pooled_image.min())
+    pooled_image_normalized = (pooled_image - pooled_image.min()) / (
+        pooled_image.max() - pooled_image.min()
+    )
     color_mapped = cm.autumn(pooled_image_normalized)
     color_mapped = (color_mapped[:, :, :3] * 255).astype(np.uint8)
 
     color_output_resized = cv2.resize(color_mapped, (320, 240))
     combined_frame = np.hstack((resized_frame, color_output_resized))
 
-    cv2.imshow('Input and Depth Estimation', combined_frame)
+    cv2.imshow("Input and Depth Estimation", combined_frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
