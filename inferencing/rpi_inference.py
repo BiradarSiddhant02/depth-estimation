@@ -1,7 +1,7 @@
 import torch
 import cv2
 import matplotlib.pyplot as plt
-from model import Model
+from model import TransferLearning, CustomUNET1, CustomUNET2
 import argparse
 import os
 from time import time
@@ -29,6 +29,11 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+tokens = args.model.split("/")
+MODEL_CLASS = tokens[-2]
+MODEL_GEN = tokens[-1]
+print(MODEL_CLASS)
+
 # Ensure output directory exists
 os.makedirs(args.output, exist_ok=True)
 
@@ -38,10 +43,17 @@ STRIDE = 1
 
 print("Loading model...")
 # Load model
-depth_model = Model().to(DEVICE)
-depth_model.load_state_dict(
-    torch.load(args.model, weights_only=False, map_location="cpu")
-)
+if MODEL_CLASS == "Transfer-Learning":
+    depth_model = TransferLearning().to(DEVICE)
+    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
+
+elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-1":
+    depth_model = CustomUNET1().to(DEVICE)
+    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))  
+
+elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-2":
+    depth_model = CustomUNET2().to(DEVICE)
+    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))   
 
 print("Model loaded successfully.")
 
