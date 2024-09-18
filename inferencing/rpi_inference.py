@@ -45,15 +45,21 @@ print("Loading model...")
 # Load model
 if MODEL_CLASS == "Transfer-Learning":
     depth_model = TransferLearning().to(DEVICE)
-    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
+    depth_model.load_state_dict(
+        torch.load(f"{args.model}/3.pth", weights_only=True, map_location="cpu")
+    )
 
 elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-1":
     depth_model = CustomUNET1().to(DEVICE)
-    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))  
+    depth_model.load_state_dict(
+        torch.load(f"{args.model}/3.pth", weights_only=True, map_location="cpu")
+    )
 
 elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-2":
     depth_model = CustomUNET2().to(DEVICE)
-    depth_model.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))   
+    depth_model.load_state_dict(
+        torch.load(f"{args.model}/3.pth", weights_only=True, map_location="cpu")
+    )
 
 print("Model loaded successfully.")
 

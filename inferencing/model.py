@@ -122,10 +122,11 @@ class TorchUNET:
     def get_model(self):
         return self.model
 
+
 class CustomUNET1(nn.Module):
     def __init__(self):
         super(CustomUNET1, self).__init__()
-        
+
         # Encoder 1
         self.encoder1 = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1, bias=False),
@@ -133,7 +134,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -144,7 +145,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -155,7 +156,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -166,7 +167,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -177,7 +178,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 4
@@ -188,7 +189,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 3
@@ -199,7 +200,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 2
@@ -210,7 +211,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 1
@@ -221,7 +222,7 @@ class CustomUNET1(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Final Convolution
@@ -231,13 +232,13 @@ class CustomUNET1(nn.Module):
         # Encoder
         enc1 = self.encoder1(x)
         pool1 = self.pool1(enc1)
-        
+
         enc2 = self.encoder2(pool1)
         pool2 = self.pool2(enc2)
-        
+
         enc3 = self.encoder3(pool2)
         pool3 = self.pool3(enc3)
-        
+
         enc4 = self.encoder4(pool3)
         pool4 = self.pool4(enc4)
 
@@ -247,23 +248,24 @@ class CustomUNET1(nn.Module):
         # Decoder
         up4 = self.upconv4(bottleneck)
         dec4 = self.decoder4(torch.cat((up4, enc4), dim=1))
-        
+
         up3 = self.upconv3(dec4)
         dec3 = self.decoder3(torch.cat((up3, enc3), dim=1))
-        
+
         up2 = self.upconv2(dec3)
         dec2 = self.decoder2(torch.cat((up2, enc2), dim=1))
-        
+
         up1 = self.upconv1(dec2)
         dec1 = self.decoder1(torch.cat((up1, enc1), dim=1))
 
         # Final output
         return self.conv(dec1)
-    
+
+
 class CustomUNET2(nn.Module):
     def __init__(self):
         super(CustomUNET2, self).__init__()
-        
+
         # Encoder 1 (Increased to 64 filters)
         self.encoder1 = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),
@@ -271,7 +273,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -282,7 +284,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -293,7 +295,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -304,7 +306,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
@@ -315,7 +317,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(1024, 1024, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(1024),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 4 (Adjusted for the increased filters)
@@ -326,7 +328,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 3 (Adjusted for the increased filters)
@@ -337,7 +339,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 2 (Adjusted for the increased filters)
@@ -348,7 +350,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Decoder 1 (Adjusted for the increased filters)
@@ -359,7 +361,7 @@ class CustomUNET2(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Final Convolution (Output single channel)
@@ -369,13 +371,13 @@ class CustomUNET2(nn.Module):
         # Encoder
         enc1 = self.encoder1(x)
         pool1 = self.pool1(enc1)
-        
+
         enc2 = self.encoder2(pool1)
         pool2 = self.pool2(enc2)
-        
+
         enc3 = self.encoder3(pool2)
         pool3 = self.pool3(enc3)
-        
+
         enc4 = self.encoder4(pool3)
         pool4 = self.pool4(enc4)
 
@@ -385,13 +387,13 @@ class CustomUNET2(nn.Module):
         # Decoder
         up4 = self.upconv4(bottleneck)
         dec4 = self.decoder4(torch.cat((up4, enc4), dim=1))
-        
+
         up3 = self.upconv3(dec4)
         dec3 = self.decoder3(torch.cat((up3, enc3), dim=1))
-        
+
         up2 = self.upconv2(dec3)
         dec2 = self.decoder2(torch.cat((up2, enc2), dim=1))
-        
+
         up1 = self.upconv1(dec2)
         dec1 = self.decoder1(torch.cat((up1, enc1), dim=1))
 

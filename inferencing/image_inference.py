@@ -9,7 +9,7 @@
 
 import torch
 import cv2
-import matplotlib.pyplot as plt # type: ignore
+import matplotlib.pyplot as plt  # type: ignore
 from model import TransferLearning, CustomUNET1, CustomUNET2
 import argparse
 import os
@@ -76,7 +76,7 @@ elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-1":
     depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
 
     depth_model_3 = CustomUNET1().to(DEVICE)
-    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))  
+    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
 
 elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-2":
     depth_model_0 = CustomUNET2().to(DEVICE)
@@ -89,7 +89,7 @@ elif MODEL_CLASS == "custom-UNET" and MODEL_GEN == "gen-2":
     depth_model_2.load_state_dict(torch.load(f"{args.model}/2.pth", weights_only=True))
 
     depth_model_3 = CustomUNET2().to(DEVICE)
-    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))    
+    depth_model_3.load_state_dict(torch.load(f"{args.model}/3.pth", weights_only=True))
 
 # Get input image
 if args.input.lower() == "camera":
@@ -116,7 +116,9 @@ ground_truth = np.ones((240, 320), dtype=np.float32)
 
 if args.input != "camera":
     depth_map_path = args.input.replace("colors", "depth")
-    ground_truth = cv2.resize(cv2.imread(depth_map_path, cv2.IMREAD_GRAYSCALE), (320, 240))
+    ground_truth = cv2.resize(
+        cv2.imread(depth_map_path, cv2.IMREAD_GRAYSCALE), (320, 240)
+    )
 
 # Inference
 with torch.no_grad():
