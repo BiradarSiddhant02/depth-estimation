@@ -39,7 +39,10 @@ Install pytorch seperately according to your system from [pytorch.org](pytorch.o
 
 ### **To run inference on a single image:**
 ```
-python image_inference --input <input mode> --output_folder <folder to store outputs> --model <path to model>
+python image_inference                         \
+     --input <input mode>                      \
+     --output_folder <folder to store outputs> \
+     --model <path to model>
 ```
 **input mode:**
 - ***camera*** to take an image from the device's camera
